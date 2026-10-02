@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class template {
@@ -159,6 +162,83 @@ public class template {
     }
 
     // GRAPH
+    static void dfs(int node, List<List<Integer>> adj, boolean[] vis) {
+        vis[node] = true;
+
+        for (int nbr : adj.get(node)) {
+            if (!vis[nbr]) {
+                dfs(nbr, adj, vis);
+            }
+        }
+    }
+
+    static void bfs(int src, List<List<Integer>> adj, boolean[] vis) {
+        ArrayDeque<Integer> q = new ArrayDeque<>();
+
+        q.add(src);
+        vis[src] = true;
+
+        while (!q.isEmpty()) {
+            int node = q.poll();
+
+            for (int nbr : adj.get(node)) {
+                if (!vis[nbr]) {
+                    vis[nbr] = true;
+                    q.add(nbr);
+                }
+            }
+        }
+    }
+
+    // djikstra
+    static class Node implements Comparable<Node> {
+        int v;
+        long dist;
+
+        Node(int v, long dist) {
+            this.v = v;
+            this.dist = dist;
+        }
+
+        public int compareTo(Node other) {
+            return Long.compare(this.dist, other.dist);
+        }
+    }
+
+    static long[] dijkstra(int src, List<List<Node>> adj) {
+        int n = adj.size();
+
+        long[] dist = new long[n];
+        Arrays.fill(dist, Long.MAX_VALUE);
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+
+        dist[src] = 0;
+        pq.add(new Node(src, 0));
+
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+
+            int u = cur.v;
+            long d = cur.dist;
+
+            if (d != dist[u])
+                continue;
+
+            for (Node edge : adj.get(u)) {
+                int v = edge.v;
+                long newDist = d + edge.dist;
+
+                if (newDist < dist[v]) {
+                    dist[v] = newDist;
+                    pq.add(new Node(v, newDist));
+                }
+            }
+        }
+
+        return dist;
+    }
+
     public static int findParent(int i, int[] parent) {
         if (parent[i] == -1) {
             return i;
